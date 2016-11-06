@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="2">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:onClick="onClickComprar"
+        android:layout_height="0dp"
+        android:weightSum="5">
+
+        <TextView
+            android:text="Comprar"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:id="@+id/textView5"
+            android:layout_alignBottom="@+id/imageButton2"
+            android:textColor="#8bc34a"
+            android:gravity="center_vertical|center_horizontal"
+            android:textSize="30sp"
+            android:background="#FFF"
+            android:textStyle="normal|bold"
+            android:elevation="18dp" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:src="@drawable/plant2"
+            android:id="@+id/imageButton2"
+            android:scaleType="centerCrop" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/layout_plantar"
+        android:onClick="onClickPlantar"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:weightSum="5"
+        android:addStatesFromChildren="false">
+
+        <TextView
+            android:text="Plantar"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:id="@+id/textView6"
+            android:layout_alignBottom="@+id/imageButton2"
+            android:textColor="#8bc34a"
+            android:gravity="center_vertical|center_horizontal"
+            android:textSize="30sp"
+            android:background="#FFF"
+            android:textStyle="normal|bold" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:src="@drawable/plant"
+            android:id="@+id/plantar_btn"
+            android:scaleType="centerCrop" />
+
+    </LinearLayout>
+
+</LinearLayout>

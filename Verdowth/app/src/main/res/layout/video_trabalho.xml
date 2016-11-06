@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp">
+        <TextView
+            android:text="Entenda como?"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_alignParentTop="true"
+            android:textColor="#8bc34a"
+            android:gravity="center_vertical|center_horizontal"
+            android:textSize="30sp"
+            android:textStyle="normal|bold"
+            android:id="@+id/titulo_top"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:weightSum="5">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/video_tenho_trabalho"
+            android:scaleType="centerCrop"
+            android:id="@+id/imageVideo"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/play"
+            android:scaleType="centerCrop"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="0dp"
+
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Seja seu patrão\n\nGanho por produtividade\n\nFlexibilidade"
+            android:layout_below="@+id/imageVideo"
+            android:textColor="#8bc34a"
+            android:textSize="25sp"
+            android:layout_margin="20dp"
+            android:id="@+id/topico1"
+            />
+
+    </RelativeLayout>
+
+
+
+
+</LinearLayout>
