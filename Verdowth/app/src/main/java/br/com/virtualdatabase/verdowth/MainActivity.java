@@ -43,6 +43,7 @@ public class MainActivity extends Activity {
 
     public void teste(){
         Log.d("TAG", "Hello Git Hub");
+        Log.d("TAG", "Hello Git Hub");
     }
 
 }
