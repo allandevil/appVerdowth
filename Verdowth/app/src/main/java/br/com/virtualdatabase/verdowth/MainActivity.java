@@ -45,6 +45,10 @@ public class MainActivity extends Activity {
 
     }
 
+    public String teste3(){
+        return  "maroto";
+
+    }
     public void teste4(){
         Log.d("TAG", "Maroto");
 
