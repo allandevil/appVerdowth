@@ -40,6 +40,10 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
+    public void teste(){
+
+    }
+
 
 
 }
