@@ -23,6 +23,8 @@ public class Localidade {
         this.Longitude = longitude;
         this.produto = produto;
         this.preco = preco;
+
+
     }
 
 
@@ -97,5 +99,9 @@ public class Localidade {
 
     public void setPreco(Double preco) {
         this.preco = preco;
+    }
+
+    public  void Maroto(){
+
     }
 }
