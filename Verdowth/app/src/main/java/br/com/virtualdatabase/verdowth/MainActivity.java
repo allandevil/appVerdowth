@@ -3,7 +3,6 @@ package br.com.virtualdatabase.verdowth;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -41,18 +40,8 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
-    public void teste(){
+    // Testeeeeeeeeeeeeeeeeeeeeeeeeeee
 
-    }
-
-    public String teste3(){
-        return  "maroto";
-
-    }
-    public void teste4(){
-        Log.d("TAG", "Maroto");
-
-    }
 
 
 
