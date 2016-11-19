@@ -1,10 +1,12 @@
 package br.com.virtualdatabase.verdowth._percurso;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -31,7 +33,7 @@ import okhttp3.Response;
 
 public class Percurso_principal extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        OnMapReadyCallback {
+        OnMapReadyCallback{
 
     private String TAG = "IGuia / Percurso";
     private static GoogleMap map;
@@ -41,12 +43,13 @@ public class Percurso_principal extends AppCompatActivity
     public int contador=0;
     private Localidade[] arrayLocalidades;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_percurso_principal);
 
-        // Abrindo a Fragment de Mapas:
+            // Abrindo a Fragment de Mapas:
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
@@ -59,9 +62,17 @@ public class Percurso_principal extends AppCompatActivity
 
         // Conectando ao repositório e pegando informações da DB (Online)
 
+        if (getNetworkClass(this) != "2G") {
 
-        SecondThread secondThread = new SecondThread();
-        secondThread.execute();
+            SecondThread secondThread = new SecondThread();
+            secondThread.execute();
+
+
+        } else {
+            Toast.makeText(this, "Prezado usuário, sua conexão não está adequada! Favor tentar mais tarde.", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
 
     }
 
@@ -99,15 +110,23 @@ public class Percurso_principal extends AppCompatActivity
 
     protected void onStart(){
         super.onStart();
-        // Conectar com o Google Play Services:
-        mGoogleApiClient.connect();
+
+        // Testar conexão do usuário
+
+        if (getNetworkClass(this) != "2G"){
+            // Conectar com o Google Play Services:
+            mGoogleApiClient.connect();
+
+        }
     }
 
     @Override
     protected void onStop() {
+        if (getNetworkClass(this) != "2G"){
         // Desconecta do Google Play Services:
         mGoogleApiClient.disconnect();
-        super.onStop();
+
+        }
 
     }
 
@@ -147,6 +166,37 @@ public class Percurso_principal extends AppCompatActivity
 
     }
 
+    /**
+    * Método para testar a conexão do usuário */
+    public static String getNetworkClass(Context context) {
+        TelephonyManager mTelephonyManager = (TelephonyManager)
+                context.getSystemService(Context.TELEPHONY_SERVICE);
+        int networkType = mTelephonyManager.getNetworkType();
+        switch (networkType) {
+            case TelephonyManager.NETWORK_TYPE_GPRS:
+            case TelephonyManager.NETWORK_TYPE_EDGE:
+            case TelephonyManager.NETWORK_TYPE_CDMA:
+            case TelephonyManager.NETWORK_TYPE_1xRTT:
+            case TelephonyManager.NETWORK_TYPE_IDEN:
+                return "2G";
+            case TelephonyManager.NETWORK_TYPE_UMTS:
+            case TelephonyManager.NETWORK_TYPE_EVDO_0:
+            case TelephonyManager.NETWORK_TYPE_EVDO_A:
+            case TelephonyManager.NETWORK_TYPE_HSDPA:
+            case TelephonyManager.NETWORK_TYPE_HSUPA:
+            case TelephonyManager.NETWORK_TYPE_HSPA:
+            case TelephonyManager.NETWORK_TYPE_EVDO_B:
+            case TelephonyManager.NETWORK_TYPE_EHRPD:
+            case TelephonyManager.NETWORK_TYPE_HSPAP:
+                return "3G";
+            case TelephonyManager.NETWORK_TYPE_LTE:
+                return "4G";
+            default:
+                return "Unknown";
+        }
+    }
+
+
     class SecondThread extends AsyncTask<String, String, String> {
 
         private OkHttpClient client = new OkHttpClient();
@@ -163,7 +213,7 @@ public class Percurso_principal extends AppCompatActivity
                 Response response = client.newCall(request).execute();
                 String json = response.body().string();
                 saida = json;
-                Log.e("saida", saida);
+                //Log.e("saida", saida);
                 // Pegando o GSON e transformando em objetos:
                 Localidade localidade1;
                 Gson gson = new Gson();
@@ -185,7 +235,7 @@ public class Percurso_principal extends AppCompatActivity
 
             try {
                 for (Localidade local : arrayLocalidades) {
-                    Log.e("JSON", "" + local.getLatitude());
+                    //Log.e("JSON", "" + local.getLatitude());
                     adicionarMarcador(local);
                 }
 

@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "br.com.virtualdatabase.iguia"
-        minSdkVersion 10
+        minSdkVersion 14
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -28,4 +28,5 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:8.3.0'
     compile 'com.squareup.okhttp3:okhttp:3.3.0'
     compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.github.clans:fab:1.6.4'
 }
