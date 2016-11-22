@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -29,7 +30,11 @@ public class ComprasActivity extends Activity {
 
         lista_de_compras = (ListView) findViewById(R.id.lista_de_compras);
 
-        // Criando objeto compra apenas para testes. Este objeto virá da activity 'Percurso_principal'
+        /**
+         * Objeto para testes (Início) :
+         * Criando objeto compra apenas para testes. Este objeto virá da activity 'Percurso_principal'
+          */
+
         Compra compra1 = new Compra("Morango", 2, 3.1);
         Compra compra2 = new Compra("Tomate", 1, 7.0);
         Compra compra3 = new Compra("Pera", 1, 12.0);
@@ -37,16 +42,61 @@ public class ComprasActivity extends Activity {
         listaDeCompras.add(compra2);
         listaDeCompras.add(compra3);
 
+        /**
+         * Objeto para testes (Fim)
+         */
+
+
         // Utilizando um custom adapter:
         CompraAdapter adapter = new CompraAdapter(this, R.layout.linha_lista_cesta_de_compras, listaDeCompras);
         lista_de_compras.setAdapter(adapter);
 
-        //Adicionando um Footer à ListView:
+        //Adicionando um Header à ListView:
 
-        View footerView =  ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.linha_final_dalista_cesta_de_compras, null, false);
-        lista_de_compras.addFooterView(footerView);
+        View headerView =  ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.linha_inicial_cesta_de_compras, null, false);
+        lista_de_compras.addHeaderView(headerView);
 
 
+        //Adicionando Footers à ListView:
 
+        View footerViewFrete =  ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.linha_frete_cesta_de_compras, null, false);
+
+        TextView footer_valorDoFrete = (TextView) footerViewFrete.findViewById(R.id.linha_valorFrete);
+        footer_valorDoFrete.setText("R$ "+calculaValorFrete().toString());
+
+        lista_de_compras.addFooterView(footerViewFrete);
+
+        View footerViewTotal =  ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.linha_final_cesta_de_compras, null, false);
+        TextView footer_totalDaCompra = (TextView) footerViewTotal.findViewById(R.id.totalDaCompra);
+        footer_totalDaCompra.setText("R$ "+calculaValorTotal().toString());
+
+        lista_de_compras.addFooterView(footerViewTotal);
+
+    }
+
+    /**
+     *
+     * @return - Devolve o valor calculado da compra (Frete + Somatório(Qtde*Valor))
+     */
+    private Double calculaValorTotal() {
+        Double valorCalculado = 0.0;
+        Double frete = calculaValorFrete();
+
+        for (int i=0; i<listaDeCompras.size(); i++){
+        valorCalculado += listaDeCompras.get(i).getUnitaryPrice()*listaDeCompras.get(i).getQuantity();
+        }
+
+        valorCalculado += frete;
+        return valorCalculado;
+    }
+
+    /**
+     *
+     * @return - Retorna valor do frete baseado nas localizações.
+     */
+    private Double calculaValorFrete() {
+        // Inicialmente este está como um valor fixo. Com o tempo, vamos torná-lo variável dependendo
+        // das localizações
+        return 10.0;
     }
 }

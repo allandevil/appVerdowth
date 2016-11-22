@@ -72,7 +72,7 @@ public class CompraAdapter extends ArrayAdapter<Compra> {
 
             if (priceTotalLinha != null) {
               //  priceProduct.setText("R$ "+ String.valueOf(c.getQuantity()*c.getUnitaryPrice()));
-                  priceProduct.setText("R$ "+ String.valueOf(c.getQuantity()*c.getUnitaryPrice()));
+                  priceTotalLinha.setText("R$ "+ String.valueOf(c.getQuantity()*c.getUnitaryPrice()));
 
             }
 
