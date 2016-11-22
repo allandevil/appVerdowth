@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" style="@style/MatchMatch"
+    android:weightSum="10">
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/imageProductInList" style="@style/dp0Width"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="10dp" />
+
+    <android.support.v7.widget.AppCompatTextView style="@style/dp0Width"
+        android:id="@+id/nameProductInList"
+        android:layout_weight="3"
+        android:layout_height="match_parent" />
+
+    <android.support.design.widget.TextInputEditText style="@style/dp0Width"
+        android:id="@+id/quantityProduct"
+        android:layout_weight="1"
+        android:layout_height="match_parent" />
+
+    <android.support.v7.widget.AppCompatTextView style="@style/dp0Width"
+        android:id="@+id/unitaryPrice"
+        android:layout_weight="3"
+        android:text="dasdasd"
+        android:layout_height="match_parent" />
+
+
+    <android.support.v7.widget.AppCompatTextView style="@style/dp0Width"
+        android:id="@+id/priceProductInList"
+        android:layout_weight="2"
+        android:layout_height="match_parent"/>
+
+
+</LinearLayout>

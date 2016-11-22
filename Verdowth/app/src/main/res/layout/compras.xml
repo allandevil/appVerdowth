@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/MatchMatch">
+
+    <ImageView style="@style/WrapWrap"
+        android:id="@+id/cesta_de_compras"
+        android:src="@drawable/ic_shopping_cart_black_36dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_height="40dp" />
+
+    <android.support.v7.widget.AppCompatTextView style="@style/textoGrande"
+        android:layout_width="match_parent"
+        android:textSize="20sp"
+        android:text="Cesta de Compras"
+        android:layout_toRightOf="@+id/cesta_de_compras"
+        android:gravity="top|center_horizontal"
+        android:hapticFeedbackEnabled="false" />
+
+    <ListView style="@style/MatchMatch"
+        android:id="@+id/lista_de_compras"
+        android:layout_below="@+id/cesta_de_compras"
+        android:layout_marginTop="10dp" />
+
+
+
+</RelativeLayout>
