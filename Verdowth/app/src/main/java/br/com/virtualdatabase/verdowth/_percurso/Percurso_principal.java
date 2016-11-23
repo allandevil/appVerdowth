@@ -62,7 +62,7 @@ public class Percurso_principal extends AppCompatActivity
 
         // Conectando ao repositório e pegando informações da DB (Online)
 
-        if (getNetworkClass(this) != "2G") {
+        if (getNetworkClass(this) == "2G") {
 
             Toast.makeText(this, "Prezado usuário, sua conexão não está adequada! Favor tentar mais tarde.", Toast.LENGTH_SHORT).show();
             finish();
