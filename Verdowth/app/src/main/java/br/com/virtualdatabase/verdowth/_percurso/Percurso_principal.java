@@ -67,7 +67,6 @@ public class Percurso_principal extends AppCompatActivity
             Toast.makeText(this, "Prezado usuário, sua conexão não está adequada! Favor tentar mais tarde.", Toast.LENGTH_SHORT).show();
             finish();
 
-
         } else {
 
             SecondThread secondThread = new SecondThread();
