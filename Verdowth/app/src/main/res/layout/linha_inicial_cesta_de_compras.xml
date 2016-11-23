@@ -10,26 +10,30 @@
         android:layout_marginLeft="10dp" />
 
     <android.support.v7.widget.AppCompatTextView style="@style/dp0Width"
+        android:text="Produto: "
         android:id="@+id/nameProductInList"
         android:layout_weight="3"
         android:layout_height="match_parent" />
 
     <android.support.v7.widget.AppCompatTextView style="@style/dp0Width"
+        android:text="Qtde: "
         android:id="@+id/quantityProduct"
         android:layout_weight="2"
         android:layout_height="match_parent" />
 
     <android.support.v7.widget.AppCompatTextView style="@style/dp0Width"
+        android:text="Preço: "
         android:id="@+id/unitaryPrice"
         android:layout_weight="2"
         android:layout_height="match_parent" />
 
 
     <android.support.v7.widget.AppCompatTextView style="@style/dp0Width"
+        android:text="Total: "
         android:id="@+id/priceProductInList"
+        android:layout_marginRight="10dp"
         android:layout_weight="2"
         android:gravity="right"
-        android:layout_marginRight="10dp"
         android:layout_height="match_parent"/>
 
 

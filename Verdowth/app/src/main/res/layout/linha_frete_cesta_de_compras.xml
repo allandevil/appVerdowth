@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" style="@style/MatchMatch"
+    android:weightSum="10">
+
+
+    <android.support.v7.widget.AppCompatTextView style="@style/dp0Width"
+        android:text="Frete: "
+        android:layout_weight="5"
+        android:gravity="left"
+        android:layout_marginLeft="10dp"
+        android:layout_height="match_parent" />
+
+    <android.support.v7.widget.AppCompatTextView style="@style/dp0Width"
+        android:id="@+id/linha_valorFrete"
+        android:layout_weight="5"
+        android:text="R$ [frete]"
+        android:layout_marginRight="10dp"
+        android:gravity="right"
+        android:layout_height="match_parent" />
+
+
+</LinearLayout>
