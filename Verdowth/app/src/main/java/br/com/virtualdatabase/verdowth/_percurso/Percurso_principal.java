@@ -8,14 +8,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.View;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import com.github.clans.fab.FloatingActionButton;
-import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -48,9 +42,6 @@ public class Percurso_principal extends AppCompatActivity
     OkHttpClient client;
     public int contador=0;
     private Localidade[] arrayLocalidades;
-    private FloatingActionMenu floatingActionMenu;
-    private FloatingActionButton floatingActionButtonProduto, floatingActionButtonEndereco;
-    private EditText editTextBusca;
 
 
     @Override
@@ -71,34 +62,17 @@ public class Percurso_principal extends AppCompatActivity
 
         // Conectando ao repositório e pegando informações da DB (Online)
 
-        /*if (getNetworkClass(this) != "2G") {*/
+        if (getNetworkClass(this) != "2G") {
 
             SecondThread secondThread = new SecondThread();
             secondThread.execute();
 
-        /*} else {
+
+        } else {
             Toast.makeText(this, "Prezado usuário, sua conexão não está adequada! Favor tentar mais tarde.", Toast.LENGTH_SHORT).show();
             finish();
-        }*/
+        }
 
-        editTextBusca = (EditText)findViewById(R.id.editTextBusca);
-        floatingActionMenu = (FloatingActionMenu) findViewById(R.id.fab_menu);
-        floatingActionButtonProduto = (FloatingActionButton) findViewById(R.id.item_fab_menu_produto);
-        floatingActionButtonEndereco = (FloatingActionButton) findViewById(R.id.item_fab_menu_endereco);
-
-        floatingActionButtonProduto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setFocusEditText("Busca por produto");
-            }
-        });
-
-        floatingActionButtonEndereco.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setFocusEditText("Busca por endereco");
-            }
-        });
 
     }
 
@@ -269,14 +243,6 @@ public class Percurso_principal extends AppCompatActivity
 
 
         }
-    }
-
-    public void setFocusEditText(String hint){
-        editTextBusca.setHint(hint);
-        floatingActionMenu.close(true);
-        InputMethodManager inputMethodManager =  (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
-        inputMethodManager.toggleSoftInputFromWindow(editTextBusca.getApplicationWindowToken(), InputMethodManager.SHOW_FORCED, 0);
-        editTextBusca.setFocusable(true);
     }
 
 
