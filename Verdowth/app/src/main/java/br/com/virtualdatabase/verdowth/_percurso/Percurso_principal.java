@@ -245,7 +245,9 @@ public class Percurso_principal extends AppCompatActivity
         }
     }
 
-
+    public void SUSI(){
+        //TESTE
+    }
 }
 
 
