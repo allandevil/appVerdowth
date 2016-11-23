@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -20,6 +21,7 @@ public class ComprasActivity extends Activity {
 
     ListView lista_de_compras;
     ArrayList<Compra> listaDeCompras = new ArrayList<>();
+    Button btn_prosseguir;
 
 
     @Override
@@ -29,13 +31,14 @@ public class ComprasActivity extends Activity {
         setContentView(R.layout.compras);
 
         lista_de_compras = (ListView) findViewById(R.id.lista_de_compras);
+        btn_prosseguir = (Button) findViewById(R.id.btn_prosseguir);
 
         /**
          * Objeto para testes (Início) :
          * Criando objeto compra apenas para testes. Este objeto virá da activity 'Percurso_principal'
           */
 
-        Compra compra1 = new Compra("Morango", 2, 3.1);
+        final Compra compra1 = new Compra("Morango", 2, 3.1);
         Compra compra2 = new Compra("Tomate", 1, 7.0);
         Compra compra3 = new Compra("Pera", 1, 12.0);
         listaDeCompras.add(compra1);
@@ -72,7 +75,34 @@ public class ComprasActivity extends Activity {
 
         lista_de_compras.addFooterView(footerViewTotal);
 
-    }
+        /**
+         * Clique nos Botões (Início)
+         */
+
+        btn_prosseguir.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*Bundle bundle = new Bundle();
+                bundle.putSerializable("listaDeCompras", listaDeCompras);
+                Intent intent = new Intent(this, Other.class);
+                intent.putExtras(bundle);
+                startActivity(intent);*/
+
+                /* Para pegar os dados na Other.class, use (com as devidas substituições):
+                Bundle extras = getIntent().getExtras();
+                if (extras != null) {
+                en = (EN)getIntent().getSerializableExtra("en"); //Obtaining data
+                }
+                 */
+            }
+        });
+
+
+        /**
+         * Clique nos Botões (Fim)
+         */
+
+        }
 
     /**
      *
@@ -99,4 +129,6 @@ public class ComprasActivity extends Activity {
         // das localizações
         return 10.0;
     }
+
+
 }

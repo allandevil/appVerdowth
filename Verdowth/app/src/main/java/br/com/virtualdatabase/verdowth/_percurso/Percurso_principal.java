@@ -35,7 +35,7 @@ public class Percurso_principal extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         OnMapReadyCallback{
 
-    private String TAG = "IGuia / Percurso";
+    private String TAG = "Verdowth";
     private static GoogleMap map;
     private SupportMapFragment mapFragment;
     private GoogleApiClient mGoogleApiClient;
@@ -62,15 +62,15 @@ public class Percurso_principal extends AppCompatActivity
 
         // Conectando ao repositório e pegando informações da DB (Online)
 
-        if (getNetworkClass(this) != "2G") {
-
-            SecondThread secondThread = new SecondThread();
-            secondThread.execute();
+        if (getNetworkClass(this) == "2G") {
+            Toast.makeText(this, "Prezado usuário, sua conexão não está adequada! Favor tentar mais tarde.", Toast.LENGTH_SHORT).show();
+            finish();
 
 
         } else {
-            Toast.makeText(this, "Prezado usuário, sua conexão não está adequada! Favor tentar mais tarde.", Toast.LENGTH_SHORT).show();
-            finish();
+            SecondThread secondThread = new SecondThread();
+            secondThread.execute();
+
         }
 
 
@@ -113,7 +113,10 @@ public class Percurso_principal extends AppCompatActivity
 
         // Testar conexão do usuário
 
-        if (getNetworkClass(this) != "2G"){
+        if (getNetworkClass(this) == "2G") {
+
+
+        } else {
             // Conectar com o Google Play Services:
             mGoogleApiClient.connect();
 
@@ -122,9 +125,11 @@ public class Percurso_principal extends AppCompatActivity
 
     @Override
     protected void onStop() {
-        if (getNetworkClass(this) != "2G"){
-        // Desconecta do Google Play Services:
-        mGoogleApiClient.disconnect();
+        if (getNetworkClass(this) == "2G"){
+
+        } else {
+            // Desconecta do Google Play Services:
+            mGoogleApiClient.disconnect();
 
         }
 
