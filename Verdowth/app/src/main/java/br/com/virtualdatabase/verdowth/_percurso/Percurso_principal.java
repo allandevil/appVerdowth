@@ -2,6 +2,7 @@ package br.com.virtualdatabase.verdowth._percurso;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -25,6 +26,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
@@ -149,6 +152,14 @@ public class Percurso_principal extends AppCompatActivity
 
     @Override
     public void onConnected(Bundle bundle) {
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        if (mLastLocation != null) {
+            Toast.makeText(Percurso_principal.this, "Minha coordenada atual Latitude: "
+                    +String.valueOf(mLastLocation.getLatitude())
+                    +" Longitude "+
+                    String.valueOf(mLastLocation.getLongitude()), Toast.LENGTH_SHORT).show();
+        }
         Toast.makeText(Percurso_principal.this, "Conectado ao Google Play Services", Toast.LENGTH_SHORT).show();
 
     }
@@ -170,7 +181,6 @@ public class Percurso_principal extends AppCompatActivity
         this.map = googleMap;
         //configura o tipo de mapa:
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
 
     }
 
