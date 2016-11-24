@@ -1,5 +1,7 @@
 package br.com.virtualdatabase.verdowth;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.Serializable;
 
 /**
@@ -11,12 +13,16 @@ public class Compra implements Serializable {
     private String name;
     private Integer quantity;
     private Double unitaryPrice;
+    private LatLng consumidor_local;
+    private LatLng fornecedor_local;
 
 
-    public Compra(String name, Integer quantity, Double unitaryPrice){
+    public Compra(String name, Integer quantity, Double unitaryPrice, LatLng consumidor, LatLng fornecedor){
         this.name = name;
         this.quantity = quantity;
         this.unitaryPrice = unitaryPrice;
+        this.consumidor_local = consumidor;
+        this.fornecedor_local = fornecedor;
 
     }
 

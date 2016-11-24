@@ -31,6 +31,7 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 
+import br.com.virtualdatabase.verdowth.ComprasActivity;
 import br.com.virtualdatabase.verdowth.Localidade;
 import br.com.virtualdatabase.verdowth.R;
 import okhttp3.OkHttpClient;
@@ -105,6 +106,16 @@ public class Percurso_principal extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 toggleVisibilityEdtText();
+            }
+        });
+
+        fab_buscaPorEndereco.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Intent intent = new Intent(Percurso_principal.this, ComprasActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
             }
         });
 
