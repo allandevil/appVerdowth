@@ -82,6 +82,13 @@ public class ComprasActivity extends Activity {
         btn_prosseguir.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // Envio de transação ao WebService (Início):
+
+
+
+                // Envio de transação ao WebService (Fim).
+
                 /*Bundle bundle = new Bundle();
                 bundle.putSerializable("listaDeCompras", listaDeCompras);
                 Intent intent = new Intent(this, Other.class);

@@ -2,14 +2,19 @@ package br.com.virtualdatabase.verdowth._percurso;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.github.clans.fab.FloatingActionButton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -35,19 +40,24 @@ public class Percurso_principal extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         OnMapReadyCallback{
 
-    private String TAG = "IGuia / Percurso";
+    private String TAG = "Verdowth";
     private static GoogleMap map;
     private SupportMapFragment mapFragment;
     private GoogleApiClient mGoogleApiClient;
     OkHttpClient client;
     public int contador=0;
+    private EditText edtTextBuscaPorLocalidade;
     private Localidade[] arrayLocalidades;
-
+    FloatingActionButton fab_buscaPorEndereco;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_percurso_principal);
+
+        final EditText edtTextBuscaPorLocalidade = (EditText) findViewById(R.id.editTextBusca);
+        edtTextBuscaPorLocalidade.setVisibility(View.INVISIBLE);
+        fab_buscaPorEndereco = (FloatingActionButton) findViewById(R.id.item_fab_menu_endereco);
 
             // Abrindo a Fragment de Mapas:
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -62,16 +72,30 @@ public class Percurso_principal extends AppCompatActivity
 
         // Conectando ao repositório e pegando informações da DB (Online)
 
-        if (getNetworkClass(this) == "2G") {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWiFi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-            Toast.makeText(this, "Prezado usuário, sua conexão não está adequada! Favor tentar mais tarde.", Toast.LENGTH_SHORT).show();
-            finish();
-
-        } else {
-
+        if (mWiFi.isConnected() || getNetworkClass(this) != "2G"){
             SecondThread secondThread = new SecondThread();
             secondThread.execute();
+        } else {
+            Toast.makeText(this, "Prezado usuário, sua conexão não está adequada! Favor tentar mais tarde.", Toast.LENGTH_SHORT).show();
+            finish();
         }
+
+
+
+        /**
+         * Adicionando ações aos FloatingActionButton (FAB)
+         */
+
+        fab_buscaPorEndereco.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isVisible = edtTextBuscaPorLocalidade.getVisibility() == View.VISIBLE;
+                edtTextBuscaPorLocalidade.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
+            }
+        });
 
 
     }
@@ -80,6 +104,7 @@ public class Percurso_principal extends AppCompatActivity
     public void onBackPressed() {
         finish();
     }
+
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -113,20 +138,20 @@ public class Percurso_principal extends AppCompatActivity
 
         // Testar conexão do usuário
 
-        if (getNetworkClass(this) == "2G"){} else {
+
             // Conectar com o Google Play Services:
             mGoogleApiClient.connect();
 
-        }
+
     }
 
     @Override
     protected void onStop() {
-        if (getNetworkClass(this) == "2G"){} else {
+        super.onStop();
         // Desconecta do Google Play Services:
         mGoogleApiClient.disconnect();
 
-        }
+
 
     }
 
@@ -149,9 +174,30 @@ public class Percurso_principal extends AppCompatActivity
 
         Marker marker;
 
-            markerOptions.position(localidade.getCoordenadas()).title(localidade.getProduto())
-                    .snippet("Preco: R$ "+localidade.getPreco())
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.planta));
+        markerOptions.position(localidade.getCoordenadas()).title(localidade.getProduto())
+                .snippet("Preco: R$ "+localidade.getPreco());
+
+
+
+        switch (localidade.getProduto()){
+
+
+            case "Morango":
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.morango_48));
+                break;
+
+            case "Tomate":
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.tomato_48));
+                break;
+
+            case "Pera":
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.pear_48));
+                break;
+
+            default:
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.planta));
+                break;
+            }
 
             marker = map.addMarker(markerOptions);
 
