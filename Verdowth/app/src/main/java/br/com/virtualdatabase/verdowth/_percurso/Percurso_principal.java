@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -44,20 +45,24 @@ public class Percurso_principal extends AppCompatActivity
     private static GoogleMap map;
     private SupportMapFragment mapFragment;
     private GoogleApiClient mGoogleApiClient;
-    OkHttpClient client;
-    public int contador=0;
+    private OkHttpClient client;
     private EditText edtTextBuscaPorLocalidade;
     private Localidade[] arrayLocalidades;
-    FloatingActionButton fab_buscaPorEndereco;
+    private FloatingActionButton fab_buscaPorEndereco;
+    private FloatingActionMenu fam_opcoes;
+    private boolean isVisible;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_percurso_principal);
 
-        final EditText edtTextBuscaPorLocalidade = (EditText) findViewById(R.id.editTextBusca);
+        edtTextBuscaPorLocalidade = (EditText) findViewById(R.id.editTextBusca);
         edtTextBuscaPorLocalidade.setVisibility(View.INVISIBLE);
         fab_buscaPorEndereco = (FloatingActionButton) findViewById(R.id.item_fab_menu_endereco);
+        fam_opcoes = (FloatingActionMenu) findViewById(R.id.fab_menu);
+
+
 
             // Abrindo a Fragment de Mapas:
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -86,16 +91,32 @@ public class Percurso_principal extends AppCompatActivity
 
 
         /**
-         * Adicionando ações aos FloatingActionButton (FAB)
+         * Adicionando ações ao FLoattingActionMenu (FAM) e ao FloatingActionButton (FAB)
          */
+
+        /*fab_buscaPorEndereco.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleVisibilityEdtText();
+            }
+        });*/
 
         fab_buscaPorEndereco.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean isVisible = edtTextBuscaPorLocalidade.getVisibility() == View.VISIBLE;
-                edtTextBuscaPorLocalidade.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
+                toggleVisibilityEdtText();
             }
         });
+
+        fam_opcoes.setOnMenuToggleListener(new FloatingActionMenu.OnMenuToggleListener() {
+            @Override
+            public void onMenuToggle(boolean opened) {
+                if (!opened && edtTextBuscaPorLocalidade.getVisibility() == View.VISIBLE ){
+                    toggleVisibilityEdtText();
+                }
+            }
+        });
+
 
 
     }
@@ -103,6 +124,15 @@ public class Percurso_principal extends AppCompatActivity
     @Override
     public void onBackPressed() {
         finish();
+    }
+
+    /**
+     *
+     */
+    public void toggleVisibilityEdtText(){
+        // Condição para ver se o campo de busca está visível ou não.
+        isVisible = edtTextBuscaPorLocalidade.getVisibility() == View.VISIBLE;
+        edtTextBuscaPorLocalidade.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
     }
 
 

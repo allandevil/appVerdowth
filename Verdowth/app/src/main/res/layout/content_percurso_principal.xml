@@ -60,7 +60,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:elevation="10dp"
-            android:onClick="fab_busca_endereco_click"
             android:src="@drawable/ic_map_white_24dp"
             app:fab_colorNormal="@color/colorAccent"
             app:fab_colorPressed="@color/secondary_text"
@@ -90,12 +89,12 @@
         android:elevation="24dp"
         android:orientation="horizontal">
 
-        <EditText
+        <EditText style="@style/AppTheme.edt_text_mapa_endereco"
             android:id="@+id/editTextBusca"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:background="@color/colorPrimary"
-            android:ems="10"
+            android:elevation="5dp"
             android:hint=" ( minha localidade ) "
             android:textColorHint="#fff"
             android:textColorHighlight="#000"

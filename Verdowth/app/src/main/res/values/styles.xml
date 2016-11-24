@@ -57,8 +57,7 @@
         <item name="android:padding">10dp</item>
     </style>
 
-    <style name="textoMedio" parent="textoGrande">
-        
+    <style name="AppTheme.edt_text_mapa_endereco">
+        <item name="android:background">@drawable/edt_txt_mapa</item>
     </style>
-
 </resources>
