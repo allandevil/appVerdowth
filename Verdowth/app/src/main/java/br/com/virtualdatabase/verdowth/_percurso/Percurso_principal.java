@@ -167,6 +167,14 @@ public class Percurso_principal extends AppCompatActivity
 
     @Override
     public void onConnected(Bundle bundle) {
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        if (mLastLocation != null) {
+            Toast.makeText(Percurso_principal.this, "Minha coordenada atual Latitude: "
+                    +String.valueOf(mLastLocation.getLatitude())
+                    +" Longitude "+
+                    String.valueOf(mLastLocation.getLongitude()), Toast.LENGTH_SHORT).show();
+        }
         Toast.makeText(Percurso_principal.this, "Conectado ao Google Play Services", Toast.LENGTH_SHORT).show();
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         //if (mLastLocation != null) {
@@ -204,7 +212,6 @@ public class Percurso_principal extends AppCompatActivity
         this.map = googleMap;
         //configura o tipo de mapa:
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
 
     }
 
