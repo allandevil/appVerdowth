@@ -2,6 +2,7 @@ package br.com.virtualdatabase.verdowth._percurso;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -25,11 +26,14 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import br.com.virtualdatabase.verdowth.ComprasActivity;
 import br.com.virtualdatabase.verdowth.Localidade;
@@ -40,10 +44,10 @@ import okhttp3.Response;
 
 public class Percurso_principal extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        OnMapReadyCallback{
+        OnMapReadyCallback {
 
     private String TAG = "Verdowth";
-    private static GoogleMap map;
+    private GoogleMap map;
     private SupportMapFragment mapFragment;
     private GoogleApiClient mGoogleApiClient;
     private OkHttpClient client;
@@ -52,6 +56,8 @@ public class Percurso_principal extends AppCompatActivity
     private FloatingActionButton fab_buscaPorEndereco;
     private FloatingActionMenu fam_opcoes;
     private boolean isVisible;
+    private ArrayList<LatLng> markersLatLng = new ArrayList<>();
+    private android.support.design.widget.FloatingActionButton carrinhoDeCompras;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +68,17 @@ public class Percurso_principal extends AppCompatActivity
         edtTextBuscaPorLocalidade.setVisibility(View.INVISIBLE);
         fab_buscaPorEndereco = (FloatingActionButton) findViewById(R.id.item_fab_menu_endereco);
         fam_opcoes = (FloatingActionMenu) findViewById(R.id.fab_menu);
-
+        carrinhoDeCompras = (android.support.design.widget.FloatingActionButton) findViewById(R.id.carrinho_de_compras);
+        carrinhoDeCompras.setVisibility(View.INVISIBLE);
 
 
             // Abrindo a Fragment de Mapas:
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+
+            mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
+
+
+
 
         // Configurando o objeto GoogleApiClient:
 
@@ -128,6 +139,13 @@ public class Percurso_principal extends AppCompatActivity
             }
         });
 
+        /**
+         * Adicionando ações aos cliques nos marcadores:
+         */
+
+
+
+
 
 
     }
@@ -150,6 +168,22 @@ public class Percurso_principal extends AppCompatActivity
     @Override
     public void onConnected(Bundle bundle) {
         Toast.makeText(Percurso_principal.this, "Conectado ao Google Play Services", Toast.LENGTH_SHORT).show();
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        //if (mLastLocation != null) {
+            Toast.makeText(Percurso_principal.this, "Minha coordenada atual Latitude: "
+                    +String.valueOf(mLastLocation.getLatitude())
+                    +" Longitude "+
+                    String.valueOf(mLastLocation.getLongitude()), Toast.LENGTH_SHORT).show();
+        //}
+        LatLng minhaLocalizacao = new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude());
+        CameraPosition target = CameraPosition.builder().target(minhaLocalizacao).zoom(14).build();
+        map.moveCamera(CameraUpdateFactory.newCameraPosition(target));
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(minhaLocalizacao);
+        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher));
+        Marker marker;
+        marker = map.addMarker(markerOptions);
 
     }
 
@@ -182,6 +216,8 @@ public class Percurso_principal extends AppCompatActivity
 
             // Conectar com o Google Play Services:
             mGoogleApiClient.connect();
+
+
 
 
     }
@@ -324,6 +360,8 @@ public class Percurso_principal extends AppCompatActivity
                 for (Localidade local : arrayLocalidades) {
                     //Log.e("JSON", "" + local.getLatitude());
                     adicionarMarcador(local);
+
+                    markersLatLng.add(local.getCoordenadas());
                 }
 
             } catch (Exception e){}

@@ -2,6 +2,7 @@ package br.com.virtualdatabase.verdowth;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
@@ -28,10 +30,10 @@ import okhttp3.Response;
 
 public class ComprasActivity extends Activity {
 
-    ListView lista_de_compras;
-    ArrayList<Compra> listaDeCompras = new ArrayList<>();
-    Button btn_prosseguir;
-
+    private ListView lista_de_compras;
+    private ArrayList<Compra> listaDeCompras = new ArrayList<>();
+    private Button btn_prosseguir;
+    private String json;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,9 +100,13 @@ public class ComprasActivity extends Activity {
                 // Envio de transação ao WebService (Início):
 
                 Gson gson = new Gson();
-                String json = gson.toJson(compra1);
-                Log.e("Teste de Json: ", json);
-                //example.post("http://www.roundsapp.com/post", json);
+                json = gson.toJson(compra1);
+                ThirdThread thirdThread = new ThirdThread();
+                thirdThread.execute();
+
+
+
+
                 // Envio de transação ao WebService (Fim).
 
                 /*Bundle bundle = new Bundle();
@@ -149,24 +155,42 @@ public class ComprasActivity extends Activity {
         return 10.0;
     }
 
-    public String post(String url, String json) {
-        final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        String saida = "";
+    class ThirdThread extends AsyncTask<String, String, String>{
 
-        OkHttpClient client = new OkHttpClient();
-        RequestBody body = RequestBody.create(JSON, json);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .build();
-        try {
-            Response response = client.newCall(request).execute();
-            saida = response.body().string();
-        } catch (Exception e) {
+        @Override
+        protected String doInBackground(String... teste) {
+
+            Log.e("Teste de Json: ", json);
+
+
+            final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+            String saida = "padrão";
+
+            OkHttpClient client = new OkHttpClient();
+            RequestBody body = RequestBody.create(JSON, json);
+            Request request = new Request.Builder()
+                    .url("http://appverdowth.mybluemix.net/cp")
+                    .post(body)
+                    .build();
+            try {
+                Response response = client.newCall(request).execute();
+                saida = response.body().string();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return saida;
 
         }
-        return saida;
+
+        @Override
+        protected void onPostExecute(String s) {
+            Toast.makeText(ComprasActivity.this, s, Toast.LENGTH_LONG).show();
+
+        }
     }
+
 }
 
 
