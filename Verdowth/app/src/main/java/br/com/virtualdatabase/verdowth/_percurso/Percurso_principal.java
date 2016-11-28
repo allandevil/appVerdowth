@@ -12,7 +12,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
@@ -33,7 +36,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import br.com.virtualdatabase.verdowth.ComprasActivity;
 import br.com.virtualdatabase.verdowth.Localidade;
@@ -44,10 +46,10 @@ import okhttp3.Response;
 
 public class Percurso_principal extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        OnMapReadyCallback {
+        OnMapReadyCallback{
 
     private String TAG = "Verdowth";
-    private GoogleMap map;
+    private static GoogleMap map;
     private SupportMapFragment mapFragment;
     private GoogleApiClient mGoogleApiClient;
     private OkHttpClient client;
@@ -56,8 +58,7 @@ public class Percurso_principal extends AppCompatActivity
     private FloatingActionButton fab_buscaPorEndereco;
     private FloatingActionMenu fam_opcoes;
     private boolean isVisible;
-    private ArrayList<LatLng> markersLatLng = new ArrayList<>();
-    private android.support.design.widget.FloatingActionButton carrinhoDeCompras;
+    private Localidade localAuxiliar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,17 +69,12 @@ public class Percurso_principal extends AppCompatActivity
         edtTextBuscaPorLocalidade.setVisibility(View.INVISIBLE);
         fab_buscaPorEndereco = (FloatingActionButton) findViewById(R.id.item_fab_menu_endereco);
         fam_opcoes = (FloatingActionMenu) findViewById(R.id.fab_menu);
-        carrinhoDeCompras = (android.support.design.widget.FloatingActionButton) findViewById(R.id.carrinho_de_compras);
-        carrinhoDeCompras.setVisibility(View.INVISIBLE);
+
 
 
             // Abrindo a Fragment de Mapas:
-
-            mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-            mapFragment.getMapAsync(this);
-
-
-
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
 
         // Configurando o objeto GoogleApiClient:
 
@@ -139,13 +135,6 @@ public class Percurso_principal extends AppCompatActivity
             }
         });
 
-        /**
-         * Adicionando ações aos cliques nos marcadores:
-         */
-
-
-
-
 
 
     }
@@ -176,22 +165,6 @@ public class Percurso_principal extends AppCompatActivity
                     String.valueOf(mLastLocation.getLongitude()), Toast.LENGTH_SHORT).show();
         }
         Toast.makeText(Percurso_principal.this, "Conectado ao Google Play Services", Toast.LENGTH_SHORT).show();
-        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        //if (mLastLocation != null) {
-            Toast.makeText(Percurso_principal.this, "Minha coordenada atual Latitude: "
-                    +String.valueOf(mLastLocation.getLatitude())
-                    +" Longitude "+
-                    String.valueOf(mLastLocation.getLongitude()), Toast.LENGTH_SHORT).show();
-        //}
-        LatLng minhaLocalizacao = new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude());
-        CameraPosition target = CameraPosition.builder().target(minhaLocalizacao).zoom(14).build();
-        map.moveCamera(CameraUpdateFactory.newCameraPosition(target));
-
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(minhaLocalizacao);
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher));
-        Marker marker;
-        marker = map.addMarker(markerOptions);
 
     }
 
@@ -212,6 +185,26 @@ public class Percurso_principal extends AppCompatActivity
         this.map = googleMap;
         //configura o tipo de mapa:
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                return showInfoWindow(marker);
+            }
+        });
+
+        map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Intent intent = new Intent(Percurso_principal.this, ComprasActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
     }
 
@@ -223,8 +216,6 @@ public class Percurso_principal extends AppCompatActivity
 
             // Conectar com o Google Play Services:
             mGoogleApiClient.connect();
-
-
 
 
     }
@@ -365,16 +356,41 @@ public class Percurso_principal extends AppCompatActivity
 
             try {
                 for (Localidade local : arrayLocalidades) {
+
                     //Log.e("JSON", "" + local.getLatitude());
                     adicionarMarcador(local);
 
-                    markersLatLng.add(local.getCoordenadas());
+
                 }
 
             } catch (Exception e){}
 
 
         }
+    }
+
+    public View showInfoWindow(Marker marker){
+        View v = getLayoutInflater().inflate(R.layout.map_info_window, null);
+        ImageView ivProduto = (ImageView)v.findViewById(R.id.ivProduto);
+        TextView txNome = (TextView)v.findViewById(R.id.tvNome);
+        TextView txQuantidade = (TextView)v.findViewById(R.id.tvQuantidade);
+        TextView txPreco = (TextView)v.findViewById(R.id.tvPreco);
+        Button btnComprar = (Button)v.findViewById(R.id.btnComprar);
+
+        btnComprar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+            }
+        });
+
+        txNome.setText(marker.getSnippet());
+
+
+
+        return v;
+
     }
 
 }
