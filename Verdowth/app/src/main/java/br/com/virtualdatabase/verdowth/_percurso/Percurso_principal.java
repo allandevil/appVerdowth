@@ -135,8 +135,6 @@ public class Percurso_principal extends AppCompatActivity
             }
         });
 
-
-
     }
 
     @Override
@@ -202,7 +200,6 @@ public class Percurso_principal extends AppCompatActivity
             public void onInfoWindowClick(Marker marker) {
                 Intent intent = new Intent(Percurso_principal.this, ComprasActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
 
@@ -250,9 +247,8 @@ public class Percurso_principal extends AppCompatActivity
         Marker marker;
 
         markerOptions.position(localidade.getCoordenadas()).title(localidade.getProduto())
-                .snippet("Preco: R$ "+localidade.getPreco());
-
-
+                .snippet("#"+localidade.getProduto()+
+                        "#"+localidade.getPreco()+"#");
 
         switch (localidade.getProduto()){
 
@@ -375,22 +371,40 @@ public class Percurso_principal extends AppCompatActivity
         TextView txNome = (TextView)v.findViewById(R.id.tvNome);
         TextView txQuantidade = (TextView)v.findViewById(R.id.tvQuantidade);
         TextView txPreco = (TextView)v.findViewById(R.id.tvPreco);
-        Button btnComprar = (Button)v.findViewById(R.id.btnComprar);
 
-        btnComprar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        String stringProduto = marker.getSnippet();
+        String[] parts = stringProduto.split("#");
+        String nomeFruta = parts[1].trim();
+        String precoFruta = parts[2].trim();
 
+        txNome.setText(nomeFruta);
+        txQuantidade.setText("3");
+        txPreco.setText(precoFruta);
 
-            }
-        });
-
-        txNome.setText(marker.getSnippet());
-
-
+        ivProduto.setImageResource(setImagemFruta(nomeFruta));
 
         return v;
 
+    }
+
+    public int setImagemFruta(String nomeFruta){
+        int drawableID = R.drawable.planta;
+
+        switch (nomeFruta){
+            case "Morango":
+                drawableID = R.drawable.morango_48;
+                break;
+
+            case "Tomate":
+                drawableID = R.drawable.tomato_48;
+                break;
+
+            case "Pera":
+                drawableID = R.drawable.pear_48;
+                break;
+        }
+
+        return drawableID;
     }
 
 }
