@@ -372,8 +372,8 @@ public class Percurso_principal extends AppCompatActivity
         Localidade loc = recuperaSnippet(marker.getSnippet());
 
         txNome.setText(loc.getProduto());
-        txQuantidade.setText("3");
-        txPreco.setText(loc.getPreco().toString());
+        txQuantidade.setText("20");
+        txPreco.setText("R$"+loc.getPreco().toString());
 
         ivProduto.setImageResource(setImagemFruta(loc.getProduto()));
 
