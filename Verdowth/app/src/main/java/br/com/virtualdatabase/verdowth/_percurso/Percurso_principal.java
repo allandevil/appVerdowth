@@ -1,5 +1,6 @@
 package br.com.virtualdatabase.verdowth._percurso;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -58,32 +60,35 @@ public class Percurso_principal extends AppCompatActivity
     private FloatingActionButton fab_buscaPorEndereco;
     private FloatingActionMenu fam_opcoes;
     private boolean isVisible;
+    private static final int ERROR_DIALOG_REQUEST = 9001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.content_percurso_principal);
+
+
+        if (servicesOK()) {
+            setContentView(R.layout.content_percurso_principal);
+
+            if (initMap()) {
+
+                mGoogleApiClient = new GoogleApiClient.Builder(this)
+                        .addConnectionCallbacks(this).addOnConnectionFailedListener(this)
+                        .addApi(LocationServices.API).build();
+                mGoogleApiClient.connect();
+            } else {
+                Toast.makeText(this, "Map not connected!", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            setContentView(R.layout.activity_main);
+        }
 
         edtTextBuscaPorLocalidade = (EditText) findViewById(R.id.editTextBusca);
         edtTextBuscaPorLocalidade.setVisibility(View.INVISIBLE);
         fab_buscaPorEndereco = (FloatingActionButton) findViewById(R.id.item_fab_menu_endereco);
         fam_opcoes = (FloatingActionMenu) findViewById(R.id.fab_menu);
 
-
-
-            // Abrindo a Fragment de Mapas:
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
-        // Configurando o objeto GoogleApiClient:
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this).addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API).build();
-
-
         // Conectando ao repositório e pegando informações da DB (Online)
-
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo mWiFi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
@@ -163,6 +168,7 @@ public class Percurso_principal extends AppCompatActivity
         }
         Toast.makeText(Percurso_principal.this, "Conectado ao Google Play Services", Toast.LENGTH_SHORT).show();
 
+
     }
 
     @Override
@@ -177,46 +183,12 @@ public class Percurso_principal extends AppCompatActivity
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Log.d(TAG , "onMapReady: "+ map );
-
         this.map = googleMap;
-        //configura o tipo de mapa:
-        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-            @Override
-            public View getInfoWindow(Marker marker) {
-                return null;
-            }
-
-            @Override
-            public View getInfoContents(Marker marker) {
-                View infoWindow = showInfoWindow(marker);
-                return infoWindow;
-            }
-        });
-
-        map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-
-                Intent intent = new Intent(Percurso_principal.this, ComprasActivity.class);
-                intent.putExtra("compraSelecionada",recuperaSnippet(marker.getSnippet()));
-                startActivity(intent);
-
-            }
-        });
 
     }
 
     protected void onStart(){
         super.onStart();
-
-        // Testar conexão do usuário
-
-
-            // Conectar com o Google Play Services:
-            mGoogleApiClient.connect();
-
 
     }
 
@@ -225,8 +197,6 @@ public class Percurso_principal extends AppCompatActivity
         super.onStop();
         // Desconecta do Google Play Services:
         mGoogleApiClient.disconnect();
-
-
 
     }
 
@@ -422,6 +392,72 @@ public class Percurso_principal extends AppCompatActivity
         Localidade localidadeSnippet = new Localidade(-23.548689,-46.634301,nomeFruta,Double.parseDouble(precoFruta));
 
         return localidadeSnippet;
+    }
+
+    /**
+     * Verifica conexão com Google Play Services
+     * @return
+     */
+    public boolean servicesOK(){
+        int isAvaliable = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+
+        if(isAvaliable == ConnectionResult.SUCCESS){
+            return true;
+        } else if(GooglePlayServicesUtil.isUserRecoverableError(isAvaliable)){
+            Dialog dialog =
+                    GooglePlayServicesUtil.getErrorDialog(isAvaliable,this,ERROR_DIALOG_REQUEST);
+            dialog.show();
+        } else {
+            Toast.makeText(this, "Can't connect to mapping service",Toast.LENGTH_SHORT).show();
+        }
+        return false;
+    }
+
+    /**
+     * Faz carregamento do Mapa
+     * @return
+     */
+    private boolean initMap(){
+        if (map == null){
+            SupportMapFragment mapFragment =
+                    (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+            map = mapFragment.getMap();
+
+
+            if(map != null){
+
+                //configura o tipo de mapa:
+                map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+                //faz aparecer infoWindow:
+                map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                    @Override
+                    public View getInfoWindow(Marker marker) {
+                        return null;
+                    }
+
+                    @Override
+                    public View getInfoContents(Marker marker) {
+                        View infoWindow = showInfoWindow(marker);
+                        return infoWindow;
+                    }
+                });
+
+                //habilita o click no infoWindow
+                map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick(Marker marker) {
+
+                        Intent intent = new Intent(Percurso_principal.this, ComprasActivity.class);
+                        intent.putExtra("compraSelecionada",recuperaSnippet(marker.getSnippet()));
+                        startActivity(intent);
+
+                    }
+                });
+            }
+        }
+        return(map != null);
+
     }
 
 }
