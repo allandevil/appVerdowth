@@ -2,11 +2,13 @@ package br.com.virtualdatabase.verdowth;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.Serializable;
+
 /**
  * Created on 06/11/16.
  */
 
-public class Localidade {
+public class Localidade implements Serializable{
 
     private LatLng coordenadas;
     private String nomeLocalidade;

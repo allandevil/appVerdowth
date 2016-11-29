@@ -58,7 +58,6 @@ public class Percurso_principal extends AppCompatActivity
     private FloatingActionButton fab_buscaPorEndereco;
     private FloatingActionMenu fam_opcoes;
     private boolean isVisible;
-    private Localidade localAuxiliar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,15 +190,19 @@ public class Percurso_principal extends AppCompatActivity
 
             @Override
             public View getInfoContents(Marker marker) {
-                return showInfoWindow(marker);
+                View infoWindow = showInfoWindow(marker);
+                return infoWindow;
             }
         });
 
         map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
+
                 Intent intent = new Intent(Percurso_principal.this, ComprasActivity.class);
+                intent.putExtra("compraSelecionada",recuperaSnippet(marker.getSnippet()));
                 startActivity(intent);
+
             }
         });
 
@@ -372,16 +375,14 @@ public class Percurso_principal extends AppCompatActivity
         TextView txQuantidade = (TextView)v.findViewById(R.id.tvQuantidade);
         TextView txPreco = (TextView)v.findViewById(R.id.tvPreco);
 
-        String stringProduto = marker.getSnippet();
-        String[] parts = stringProduto.split("#");
-        String nomeFruta = parts[1].trim();
-        String precoFruta = parts[2].trim();
 
-        txNome.setText(nomeFruta);
+        Localidade loc = recuperaSnippet(marker.getSnippet());
+
+        txNome.setText(loc.getProduto());
         txQuantidade.setText("3");
-        txPreco.setText(precoFruta);
+        txPreco.setText(loc.getPreco().toString());
 
-        ivProduto.setImageResource(setImagemFruta(nomeFruta));
+        ivProduto.setImageResource(setImagemFruta(loc.getProduto()));
 
         return v;
 
@@ -405,6 +406,22 @@ public class Percurso_principal extends AppCompatActivity
         }
 
         return drawableID;
+    }
+
+    /**
+     *
+     * @param markerSnippet
+     * @return
+     */
+    public Localidade recuperaSnippet(String markerSnippet){
+
+        String[] parts = markerSnippet.split("#");
+        String nomeFruta = parts[1].trim();
+        String precoFruta = parts[2].trim();
+
+        Localidade localidadeSnippet = new Localidade(-23.548689,-46.634301,nomeFruta,Double.parseDouble(precoFruta));
+
+        return localidadeSnippet;
     }
 
 }
