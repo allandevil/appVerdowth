@@ -13,11 +13,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -36,7 +33,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -231,16 +227,6 @@ public class Percurso_principal extends AppCompatActivity
     }
 
     /**
-     * This method set in MAP the locations
-     * @param local1
-     * @param local2
-     */
-    public void setLocationInMapIntent(String local1, String local2){
-        String url = "http://maps.google.com/maps?f=d&saddr="+local1+"&daddr="+local2+"&hl=pt";
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-    }
-
-    /**
      * Método que adiciona um Marcador no mapa
      * @param localidade -  Dados geográficos de determinada localidade (Lontitude e Latitude LatLng)
      */
@@ -370,7 +356,12 @@ public class Percurso_principal extends AppCompatActivity
         }
     }
 
-    public View showInfoWindow(Marker marker){
+    /**
+     * configira InfoWindow
+     * @param marker
+     * @return
+     */
+    public View configuraInfoWindow(Marker marker){
         View v = getLayoutInflater().inflate(R.layout.map_info_window, null);
         ImageView ivProduto = (ImageView)v.findViewById(R.id.ivProduto);
         TextView txNome = (TextView)v.findViewById(R.id.tvNome);
@@ -390,6 +381,11 @@ public class Percurso_principal extends AppCompatActivity
 
     }
 
+    /**
+     * retorna imagem referente a string
+     * @param nomeFruta
+     * @return
+     */
     public int setImagemFruta(String nomeFruta){
         int drawableID = R.drawable.planta;
 
@@ -411,7 +407,7 @@ public class Percurso_principal extends AppCompatActivity
     }
 
     /**
-     *
+     *transforma a string do Snippet em um objeto Localidade
      * @param markerSnippet
      * @return
      */
@@ -470,7 +466,7 @@ public class Percurso_principal extends AppCompatActivity
 
                     @Override
                     public View getInfoContents(Marker marker) {
-                        View infoWindow = showInfoWindow(marker);
+                        View infoWindow = configuraInfoWindow(marker);
                         return infoWindow;
                     }
                 });
@@ -516,27 +512,42 @@ public class Percurso_principal extends AppCompatActivity
 
     }
 
+    /**
+     * Esconde teclado
+     * @param v
+     */
     private void hideSoftKeyboard(View v) {
         InputMethodManager imm =
                 (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
+    /**
+     * direciona a camera para uma localizacao no Mapa
+     * @param lat
+     * @param lng
+     * @param zoom
+     */
     private void gotoLocation(double lat, double lng, float zoom){
         LatLng latLng = new LatLng(lat, lng);
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
         map.moveCamera(update);
     }
 
+    /**
+     * adiciona Marcador no Mapa
+     * @param add
+     * @param lat
+     * @param lng
+     */
     private void addMarker(Address add, double lat, double lng){
         MarkerOptions options = new MarkerOptions()
                 .title(add.getLocality())
                 .position(new LatLng(lat,lng))
                 .snippet("#"+add.getCountryName()+"# teste #")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
 
         marker = map.addMarker(options);
-
     }
 
 
