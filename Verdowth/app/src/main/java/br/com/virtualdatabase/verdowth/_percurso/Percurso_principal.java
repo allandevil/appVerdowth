@@ -3,6 +3,8 @@ package br.com.virtualdatabase.verdowth._percurso;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -12,9 +14,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +43,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.List;
 
 import br.com.virtualdatabase.verdowth.ComprasActivity;
 import br.com.virtualdatabase.verdowth.Localidade;
@@ -59,12 +65,17 @@ public class Percurso_principal extends AppCompatActivity
     private Localidade[] arrayLocalidades;
     private FloatingActionButton fab_buscaPorEndereco;
     private FloatingActionMenu fam_opcoes;
-    private boolean isVisible;
+    private boolean isVisible, isKeyboardVisible;
     private static final int ERROR_DIALOG_REQUEST = 9001;
+    private ImageButton btnBusca;
+    private Marker marker;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        isKeyboardVisible = false;
 
 
         if (servicesOK()) {
@@ -85,6 +96,8 @@ public class Percurso_principal extends AppCompatActivity
 
         edtTextBuscaPorLocalidade = (EditText) findViewById(R.id.editTextBusca);
         edtTextBuscaPorLocalidade.setVisibility(View.INVISIBLE);
+        btnBusca = (ImageButton)findViewById(R.id.btnBusca);
+        btnBusca.setVisibility(View.INVISIBLE);
         fab_buscaPorEndereco = (FloatingActionButton) findViewById(R.id.item_fab_menu_endereco);
         fam_opcoes = (FloatingActionMenu) findViewById(R.id.fab_menu);
 
@@ -117,16 +130,7 @@ public class Percurso_principal extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 toggleVisibilityEdtText();
-            }
-        });
 
-        fab_buscaPorEndereco.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Intent intent = new Intent(Percurso_principal.this, ComprasActivity.class);
-                startActivity(intent);
-                finish();
-                return true;
             }
         });
 
@@ -139,9 +143,42 @@ public class Percurso_principal extends AppCompatActivity
             }
         });
 
+        btnBusca.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideSoftKeyboard(v);
 
+                String searchString = edtTextBuscaPorLocalidade.getText().toString();
+
+                Geocoder gc = new Geocoder(Percurso_principal.this);
+                List<Address> list = null; //segundo argumento é maximo de resultados que eu quero receber
+                try {
+                    list = gc.getFromLocationName(searchString, 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if (list.size() > 0) {
+                    Address add = list.get(0);
+                    String locality = add.getLocality();
+                    Toast.makeText(Percurso_principal.this, "Found: " + locality, Toast.LENGTH_SHORT).show();
+
+                    double lat = add.getLatitude();
+                    double lng = add.getLongitude();
+                    gotoLocation(lat, lng, 15);
+
+                    if(marker != null){
+                        marker.remove();
+                    }
+                    addMarker(add, lat, lng);
+                    fam_opcoes.close(true);
+                }
+
+            }
+        });
 
     }
+
 
     @Override
     public void onBackPressed() {
@@ -155,6 +192,7 @@ public class Percurso_principal extends AppCompatActivity
         // Condição para ver se o campo de busca está visível ou não.
         isVisible = edtTextBuscaPorLocalidade.getVisibility() == View.VISIBLE;
         edtTextBuscaPorLocalidade.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
+        btnBusca.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
     }
 
 
@@ -477,6 +515,30 @@ public class Percurso_principal extends AppCompatActivity
         }
 
     }
+
+    private void hideSoftKeyboard(View v) {
+        InputMethodManager imm =
+                (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    }
+
+    private void gotoLocation(double lat, double lng, float zoom){
+        LatLng latLng = new LatLng(lat, lng);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+        map.moveCamera(update);
+    }
+
+    private void addMarker(Address add, double lat, double lng){
+        MarkerOptions options = new MarkerOptions()
+                .title(add.getLocality())
+                .position(new LatLng(lat,lng))
+                .snippet("#"+add.getCountryName()+"# teste #")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+
+        marker = map.addMarker(options);
+
+    }
+
 
 }
 
