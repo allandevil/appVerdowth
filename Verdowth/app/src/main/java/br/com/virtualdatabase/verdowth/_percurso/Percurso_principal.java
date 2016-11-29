@@ -139,6 +139,8 @@ public class Percurso_principal extends AppCompatActivity
             }
         });
 
+
+
     }
 
     @Override
@@ -158,16 +160,6 @@ public class Percurso_principal extends AppCompatActivity
 
     @Override
     public void onConnected(Bundle bundle) {
-        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
-        if (mLastLocation != null) {
-            Toast.makeText(Percurso_principal.this, "Minha coordenada atual Latitude: "
-                    +String.valueOf(mLastLocation.getLatitude())
-                    +" Longitude "+
-                    String.valueOf(mLastLocation.getLongitude()), Toast.LENGTH_SHORT).show();
-        }
-        Toast.makeText(Percurso_principal.this, "Conectado ao Google Play Services", Toast.LENGTH_SHORT).show();
-
 
     }
 
@@ -250,8 +242,10 @@ public class Percurso_principal extends AppCompatActivity
 
         // Fazendo com que a camera tenha uma posição boa a ser exibida:
 
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(localidade.getCoordenadas(), 16);
-        map.moveCamera(update);
+        /*CameraUpdate update = CameraUpdateFactory.newLatLngZoom(localidade.getCoordenadas(), 16);
+        map.moveCamera(update);*/
+
+        mostraLocalizacaoAtual();
 
 
     }
@@ -454,9 +448,33 @@ public class Percurso_principal extends AppCompatActivity
 
                     }
                 });
+
+
             }
         }
         return(map != null);
+
+    }
+
+    /**
+     * mostra localização atual
+     */
+    public  void mostraLocalizacaoAtual(){
+        Location currentLocation = LocationServices.FusedLocationApi
+                .getLastLocation(mGoogleApiClient);
+        if(currentLocation == null){
+            Toast.makeText(this, "Culdn't connect!",Toast.LENGTH_SHORT).show();
+        } else {
+            LatLng latLng = new LatLng(
+                    currentLocation.getLatitude(),
+                    currentLocation.getLongitude()
+            );
+            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(
+                    latLng, 15
+            );
+            map.moveCamera(update);
+
+        }
 
     }
 
