@@ -15,9 +15,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +42,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import br.com.virtualdatabase.verdowth.ComprasActivity;
@@ -60,11 +64,14 @@ public class Percurso_principal extends AppCompatActivity
     private EditText edtTextBuscaPorLocalidade;
     private Localidade[] arrayLocalidades;
     private FloatingActionButton fab_buscaPorEndereco;
+    private FloatingActionButton fab_buscaPorProduto;
     private FloatingActionMenu fam_opcoes;
     private boolean isVisible, isKeyboardVisible;
     private static final int ERROR_DIALOG_REQUEST = 9001;
     private ImageButton btnBusca;
     private Marker marker;
+    private Spinner spinnerBuscaPorProduto;
+    private List<String> produtos;
 
 
     @Override
@@ -95,7 +102,53 @@ public class Percurso_principal extends AppCompatActivity
         btnBusca = (ImageButton)findViewById(R.id.btnBusca);
         btnBusca.setVisibility(View.INVISIBLE);
         fab_buscaPorEndereco = (FloatingActionButton) findViewById(R.id.item_fab_menu_endereco);
+        fab_buscaPorProduto = (FloatingActionButton) findViewById(R.id.item_fab_menu_produto);
         fam_opcoes = (FloatingActionMenu) findViewById(R.id.fab_menu);
+        spinnerBuscaPorProduto = (Spinner)findViewById(R.id.spinnerBuscaPorProduto);
+        spinnerBuscaPorProduto.setVisibility(View.INVISIBLE);
+        configuraSpinnerBuscaProduto();
+
+        spinnerBuscaPorProduto.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (produtos.get(position)) {
+
+                    case "Morango":
+                        Toast.makeText(Percurso_principal.this, "Morango: ", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case "Tomate":
+                        Toast.makeText(Percurso_principal.this, "Tomate: ", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case "Pera":
+                        Toast.makeText(Percurso_principal.this, "Pera: ", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case "Outros":
+                        Toast.makeText(Percurso_principal.this, "Outros: ", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+
+                try {
+                    for (Localidade local : arrayLocalidades) {
+                        if(local.getProduto() == produtos.get(position))
+                        //Log.e("JSON", "" + local.getLatitude());
+                        adicionarMarcador(local);
+                        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(local.getCoordenadas(), 16);
+                        map.moveCamera(update);
+
+                    }
+
+                } catch (Exception e){}
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         // Conectando ao repositório e pegando informações da DB (Online)
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -126,6 +179,17 @@ public class Percurso_principal extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 toggleVisibilityEdtText();
+                spinnerBuscaPorProduto.setVisibility(View.INVISIBLE);
+
+            }
+        });
+
+        fab_buscaPorProduto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleVisibilitySpinner();
+                edtTextBuscaPorLocalidade.setVisibility(View.INVISIBLE);
+                btnBusca.setVisibility(View.INVISIBLE );
 
             }
         });
@@ -135,7 +199,10 @@ public class Percurso_principal extends AppCompatActivity
             public void onMenuToggle(boolean opened) {
                 if (!opened && edtTextBuscaPorLocalidade.getVisibility() == View.VISIBLE ){
                     toggleVisibilityEdtText();
+
                 }
+                spinnerBuscaPorProduto.setVisibility(View.INVISIBLE);
+
             }
         });
 
@@ -189,6 +256,12 @@ public class Percurso_principal extends AppCompatActivity
         isVisible = edtTextBuscaPorLocalidade.getVisibility() == View.VISIBLE;
         edtTextBuscaPorLocalidade.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
         btnBusca.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
+    }
+
+    public void toggleVisibilitySpinner(){
+        // Condição para ver se o campo de busca está visível ou não.
+        isVisible = spinnerBuscaPorProduto.getVisibility() == View.VISIBLE;
+        spinnerBuscaPorProduto.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
     }
 
 
@@ -269,10 +342,10 @@ public class Percurso_principal extends AppCompatActivity
         /*CameraUpdate update = CameraUpdateFactory.newLatLngZoom(localidade.getCoordenadas(), 16);
         map.moveCamera(update);*/
 
-        mostraLocalizacaoAtual();
-
 
     }
+
+
 
     /**
     * Método para testar a conexão do usuário */
@@ -347,11 +420,10 @@ public class Percurso_principal extends AppCompatActivity
                     //Log.e("JSON", "" + local.getLatitude());
                     adicionarMarcador(local);
 
-
                 }
 
             } catch (Exception e){}
-
+            mostraLocalizacaoAtual();
 
         }
     }
@@ -372,7 +444,7 @@ public class Percurso_principal extends AppCompatActivity
         Localidade loc = recuperaSnippet(marker.getSnippet());
 
         txNome.setText(loc.getProduto());
-        txQuantidade.setText("20");
+        txQuantidade.setText("2");
         txPreco.setText("R$"+loc.getPreco().toString());
 
         ivProduto.setImageResource(setImagemFruta(loc.getProduto()));
@@ -482,8 +554,6 @@ public class Percurso_principal extends AppCompatActivity
 
                     }
                 });
-
-
             }
         }
         return(map != null);
@@ -548,6 +618,19 @@ public class Percurso_principal extends AppCompatActivity
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
 
         marker = map.addMarker(options);
+    }
+
+    /**
+     * Configura Adapeter e List do spinnerBuscaProduto
+     */
+    public void configuraSpinnerBuscaProduto(){
+        produtos = new ArrayList<String>();
+        produtos.add("Morango");
+        produtos.add("Tomate");
+        produtos.add("Pera");
+        produtos.add("Outros");
+        ArrayAdapter adapter_produto = new ArrayAdapter(this, R.layout.spinner_item_produto, produtos);
+        spinnerBuscaPorProduto.setAdapter(adapter_produto);
     }
 
 
