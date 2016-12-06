@@ -19,6 +19,7 @@
         android:textAlignment="center" />
 
     <Button
+        android:id="@+id/goVerdowthBtn"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="50dp"
@@ -28,6 +29,7 @@
         android:padding="10dp"
         android:textAlignment="center"
         android:textStyle="normal|bold"
+
         android:textColor="#FFF"
         android:gravity="center_vertical" />
 

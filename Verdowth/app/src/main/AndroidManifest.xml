@@ -65,10 +65,10 @@
             android:screenOrientation="portrait"></activity>
 
         <activity android:name=".ComprasActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"></activity>
 
-
-        </activity>
+        <activity android:name=".visao_agricultor.SecondAcitivity_EscolhasPlantar"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>
