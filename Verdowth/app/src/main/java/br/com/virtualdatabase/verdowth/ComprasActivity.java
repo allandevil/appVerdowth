@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import br.com.virtualdatabase.verdowth._percurso.Percurso_principal;
 import br.com.virtualdatabase.verdowth.adapters.CompraAdapter;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -40,6 +41,12 @@ public class ComprasActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.compras);
+
+
+        Localidade loc = (Localidade) this.getIntent().getSerializableExtra("compraSelecionada");
+        Toast.makeText(ComprasActivity.this, "getSerializableExtra: "+loc.getProduto()+" e "
+                +loc.getPreco(), Toast.LENGTH_SHORT).show();
+
 
         lista_de_compras = (ListView) findViewById(R.id.lista_de_compras);
         btn_prosseguir = (Button) findViewById(R.id.btn_prosseguir);
@@ -189,6 +196,10 @@ public class ComprasActivity extends Activity {
             Toast.makeText(ComprasActivity.this, s, Toast.LENGTH_LONG).show();
 
         }
+    }
+
+    public void testeSusi(){
+
     }
 
 }

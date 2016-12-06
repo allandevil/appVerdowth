@@ -1,7 +1,10 @@
 package br.com.virtualdatabase.verdowth._percurso;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -10,14 +13,21 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -26,7 +36,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -34,6 +43,7 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import br.com.virtualdatabase.verdowth.ComprasActivity;
 import br.com.virtualdatabase.verdowth.Localidade;
@@ -44,51 +54,103 @@ import okhttp3.Response;
 
 public class Percurso_principal extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        OnMapReadyCallback {
+        OnMapReadyCallback{
 
     private String TAG = "Verdowth";
-    private GoogleMap map;
+    private static GoogleMap map;
     private SupportMapFragment mapFragment;
     private GoogleApiClient mGoogleApiClient;
     private OkHttpClient client;
     private EditText edtTextBuscaPorLocalidade;
     private Localidade[] arrayLocalidades;
     private FloatingActionButton fab_buscaPorEndereco;
+    private FloatingActionButton fab_buscaPorProduto;
     private FloatingActionMenu fam_opcoes;
-    private boolean isVisible;
-    private ArrayList<LatLng> markersLatLng = new ArrayList<>();
-    private android.support.design.widget.FloatingActionButton carrinhoDeCompras;
+    private boolean isVisible, isKeyboardVisible;
+    private static final int ERROR_DIALOG_REQUEST = 9001;
+    private ImageButton btnBusca;
+    private Marker marker;
+    private Spinner spinnerBuscaPorProduto;
+    private List<String> produtos;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.content_percurso_principal);
+
+        isKeyboardVisible = false;
+
+
+        if (servicesOK()) {
+            setContentView(R.layout.content_percurso_principal);
+
+            if (initMap()) {
+
+                mGoogleApiClient = new GoogleApiClient.Builder(this)
+                        .addConnectionCallbacks(this).addOnConnectionFailedListener(this)
+                        .addApi(LocationServices.API).build();
+                mGoogleApiClient.connect();
+            } else {
+                Toast.makeText(this, "Map not connected!", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            setContentView(R.layout.activity_main);
+        }
 
         edtTextBuscaPorLocalidade = (EditText) findViewById(R.id.editTextBusca);
         edtTextBuscaPorLocalidade.setVisibility(View.INVISIBLE);
+        btnBusca = (ImageButton)findViewById(R.id.btnBusca);
+        btnBusca.setVisibility(View.INVISIBLE);
         fab_buscaPorEndereco = (FloatingActionButton) findViewById(R.id.item_fab_menu_endereco);
+        fab_buscaPorProduto = (FloatingActionButton) findViewById(R.id.item_fab_menu_produto);
         fam_opcoes = (FloatingActionMenu) findViewById(R.id.fab_menu);
-        carrinhoDeCompras = (android.support.design.widget.FloatingActionButton) findViewById(R.id.carrinho_de_compras);
-        carrinhoDeCompras.setVisibility(View.INVISIBLE);
+        spinnerBuscaPorProduto = (Spinner)findViewById(R.id.spinnerBuscaPorProduto);
+        spinnerBuscaPorProduto.setVisibility(View.INVISIBLE);
+        configuraSpinnerBuscaProduto();
 
+        spinnerBuscaPorProduto.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (produtos.get(position)) {
 
-            // Abrindo a Fragment de Mapas:
+                    case "Morango":
+                        Toast.makeText(Percurso_principal.this, "Morango: ", Toast.LENGTH_SHORT).show();
+                        break;
 
-            mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-            mapFragment.getMapAsync(this);
+                    case "Tomate":
+                        Toast.makeText(Percurso_principal.this, "Tomate: ", Toast.LENGTH_SHORT).show();
+                        break;
 
+                    case "Pera":
+                        Toast.makeText(Percurso_principal.this, "Pera: ", Toast.LENGTH_SHORT).show();
+                        break;
 
+                    case "Outros":
+                        Toast.makeText(Percurso_principal.this, "Outros: ", Toast.LENGTH_SHORT).show();
+                        break;
+                }
 
+                try {
+                    for (Localidade local : arrayLocalidades) {
+                        if(local.getProduto() == produtos.get(position))
+                        //Log.e("JSON", "" + local.getLatitude());
+                        adicionarMarcador(local);
+                        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(local.getCoordenadas(), 16);
+                        map.moveCamera(update);
 
-        // Configurando o objeto GoogleApiClient:
+                    }
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this).addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API).build();
+                } catch (Exception e){}
 
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         // Conectando ao repositório e pegando informações da DB (Online)
-
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo mWiFi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
@@ -117,16 +179,18 @@ public class Percurso_principal extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 toggleVisibilityEdtText();
+                spinnerBuscaPorProduto.setVisibility(View.INVISIBLE);
+
             }
         });
 
-        fab_buscaPorEndereco.setOnLongClickListener(new View.OnLongClickListener() {
+        fab_buscaPorProduto.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
-                Intent intent = new Intent(Percurso_principal.this, ComprasActivity.class);
-                startActivity(intent);
-                finish();
-                return true;
+            public void onClick(View v) {
+                toggleVisibilitySpinner();
+                edtTextBuscaPorLocalidade.setVisibility(View.INVISIBLE);
+                btnBusca.setVisibility(View.INVISIBLE );
+
             }
         });
 
@@ -135,20 +199,49 @@ public class Percurso_principal extends AppCompatActivity
             public void onMenuToggle(boolean opened) {
                 if (!opened && edtTextBuscaPorLocalidade.getVisibility() == View.VISIBLE ){
                     toggleVisibilityEdtText();
+
                 }
+                spinnerBuscaPorProduto.setVisibility(View.INVISIBLE);
+
             }
         });
 
-        /**
-         * Adicionando ações aos cliques nos marcadores:
-         */
+        btnBusca.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideSoftKeyboard(v);
 
+                String searchString = edtTextBuscaPorLocalidade.getText().toString();
 
+                Geocoder gc = new Geocoder(Percurso_principal.this);
+                List<Address> list = null; //segundo argumento é maximo de resultados que eu quero receber
+                try {
+                    list = gc.getFromLocationName(searchString, 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
+                if (list.size() > 0) {
+                    Address add = list.get(0);
+                    String locality = add.getLocality();
+                    Toast.makeText(Percurso_principal.this, "Found: " + locality, Toast.LENGTH_SHORT).show();
 
+                    double lat = add.getLatitude();
+                    double lng = add.getLongitude();
+                    gotoLocation(lat, lng, 15);
 
+                    if(marker != null){
+                        marker.remove();
+                    }
+                    addMarker(add, lat, lng);
+                    fam_opcoes.close(true);
+                }
+
+            }
+        });
 
     }
+
 
     @Override
     public void onBackPressed() {
@@ -162,36 +255,18 @@ public class Percurso_principal extends AppCompatActivity
         // Condição para ver se o campo de busca está visível ou não.
         isVisible = edtTextBuscaPorLocalidade.getVisibility() == View.VISIBLE;
         edtTextBuscaPorLocalidade.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
+        btnBusca.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
+    }
+
+    public void toggleVisibilitySpinner(){
+        // Condição para ver se o campo de busca está visível ou não.
+        isVisible = spinnerBuscaPorProduto.getVisibility() == View.VISIBLE;
+        spinnerBuscaPorProduto.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
     }
 
 
     @Override
     public void onConnected(Bundle bundle) {
-        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
-        if (mLastLocation != null) {
-            Toast.makeText(Percurso_principal.this, "Minha coordenada atual Latitude: "
-                    +String.valueOf(mLastLocation.getLatitude())
-                    +" Longitude "+
-                    String.valueOf(mLastLocation.getLongitude()), Toast.LENGTH_SHORT).show();
-        }
-        Toast.makeText(Percurso_principal.this, "Conectado ao Google Play Services", Toast.LENGTH_SHORT).show();
-        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        //if (mLastLocation != null) {
-            Toast.makeText(Percurso_principal.this, "Minha coordenada atual Latitude: "
-                    +String.valueOf(mLastLocation.getLatitude())
-                    +" Longitude "+
-                    String.valueOf(mLastLocation.getLongitude()), Toast.LENGTH_SHORT).show();
-        //}
-        LatLng minhaLocalizacao = new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude());
-        CameraPosition target = CameraPosition.builder().target(minhaLocalizacao).zoom(14).build();
-        map.moveCamera(CameraUpdateFactory.newCameraPosition(target));
-
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(minhaLocalizacao);
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher));
-        Marker marker;
-        marker = map.addMarker(markerOptions);
 
     }
 
@@ -207,25 +282,12 @@ public class Percurso_principal extends AppCompatActivity
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Log.d(TAG , "onMapReady: "+ map );
-
         this.map = googleMap;
-        //configura o tipo de mapa:
-        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
     }
 
     protected void onStart(){
         super.onStart();
-
-        // Testar conexão do usuário
-
-
-            // Conectar com o Google Play Services:
-            mGoogleApiClient.connect();
-
-
-
 
     }
 
@@ -235,18 +297,6 @@ public class Percurso_principal extends AppCompatActivity
         // Desconecta do Google Play Services:
         mGoogleApiClient.disconnect();
 
-
-
-    }
-
-    /**
-     * This method set in MAP the locations
-     * @param local1
-     * @param local2
-     */
-    public void setLocationInMapIntent(String local1, String local2){
-        String url = "http://maps.google.com/maps?f=d&saddr="+local1+"&daddr="+local2+"&hl=pt";
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
     }
 
     /**
@@ -259,9 +309,8 @@ public class Percurso_principal extends AppCompatActivity
         Marker marker;
 
         markerOptions.position(localidade.getCoordenadas()).title(localidade.getProduto())
-                .snippet("Preco: R$ "+localidade.getPreco());
-
-
+                .snippet("#"+localidade.getProduto()+
+                        "#"+localidade.getPreco()+"#");
 
         switch (localidade.getProduto()){
 
@@ -290,11 +339,13 @@ public class Percurso_principal extends AppCompatActivity
 
         // Fazendo com que a camera tenha uma posição boa a ser exibida:
 
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(localidade.getCoordenadas(), 16);
-        map.moveCamera(update);
+        /*CameraUpdate update = CameraUpdateFactory.newLatLngZoom(localidade.getCoordenadas(), 16);
+        map.moveCamera(update);*/
 
 
     }
+
+
 
     /**
     * Método para testar a conexão do usuário */
@@ -365,17 +416,223 @@ public class Percurso_principal extends AppCompatActivity
 
             try {
                 for (Localidade local : arrayLocalidades) {
+
                     //Log.e("JSON", "" + local.getLatitude());
                     adicionarMarcador(local);
 
-                    markersLatLng.add(local.getCoordenadas());
                 }
 
             } catch (Exception e){}
-
+            mostraLocalizacaoAtual();
 
         }
     }
+
+    /**
+     * configira InfoWindow
+     * @param marker
+     * @return
+     */
+    public View configuraInfoWindow(Marker marker){
+        View v = getLayoutInflater().inflate(R.layout.map_info_window, null);
+        ImageView ivProduto = (ImageView)v.findViewById(R.id.ivProduto);
+        TextView txNome = (TextView)v.findViewById(R.id.tvNome);
+        TextView txQuantidade = (TextView)v.findViewById(R.id.tvQuantidade);
+        TextView txPreco = (TextView)v.findViewById(R.id.tvPreco);
+
+
+        Localidade loc = recuperaSnippet(marker.getSnippet());
+
+        txNome.setText(loc.getProduto());
+        txQuantidade.setText("2");
+        txPreco.setText("R$"+loc.getPreco().toString());
+
+        ivProduto.setImageResource(setImagemFruta(loc.getProduto()));
+
+        return v;
+
+    }
+
+    /**
+     * retorna imagem referente a string
+     * @param nomeFruta
+     * @return
+     */
+    public int setImagemFruta(String nomeFruta){
+        int drawableID = R.drawable.planta;
+
+        switch (nomeFruta){
+            case "Morango":
+                drawableID = R.drawable.morango_48;
+                break;
+
+            case "Tomate":
+                drawableID = R.drawable.tomato_48;
+                break;
+
+            case "Pera":
+                drawableID = R.drawable.pear_48;
+                break;
+        }
+
+        return drawableID;
+    }
+
+    /**
+     *transforma a string do Snippet em um objeto Localidade
+     * @param markerSnippet
+     * @return
+     */
+    public Localidade recuperaSnippet(String markerSnippet){
+
+        String[] parts = markerSnippet.split("#");
+        String nomeFruta = parts[1].trim();
+        String precoFruta = parts[2].trim();
+
+        Localidade localidadeSnippet = new Localidade(-23.548689,-46.634301,nomeFruta,Double.parseDouble(precoFruta));
+
+        return localidadeSnippet;
+    }
+
+    /**
+     * Verifica conexão com Google Play Services
+     * @return
+     */
+    public boolean servicesOK(){
+        int isAvaliable = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+
+        if(isAvaliable == ConnectionResult.SUCCESS){
+            return true;
+        } else if(GooglePlayServicesUtil.isUserRecoverableError(isAvaliable)){
+            Dialog dialog =
+                    GooglePlayServicesUtil.getErrorDialog(isAvaliable,this,ERROR_DIALOG_REQUEST);
+            dialog.show();
+        } else {
+            Toast.makeText(this, "Can't connect to mapping service",Toast.LENGTH_SHORT).show();
+        }
+        return false;
+    }
+
+    /**
+     * Faz carregamento do Mapa
+     * @return
+     */
+    private boolean initMap(){
+        if (map == null){
+            SupportMapFragment mapFragment =
+                    (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+            map = mapFragment.getMap();
+
+
+            if(map != null){
+
+                //configura o tipo de mapa:
+                map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+                //faz aparecer infoWindow:
+                map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                    @Override
+                    public View getInfoWindow(Marker marker) {
+                        return null;
+                    }
+
+                    @Override
+                    public View getInfoContents(Marker marker) {
+                        View infoWindow = configuraInfoWindow(marker);
+                        return infoWindow;
+                    }
+                });
+
+                //habilita o click no infoWindow
+                map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick(Marker marker) {
+
+                        Intent intent = new Intent(Percurso_principal.this, ComprasActivity.class);
+                        intent.putExtra("compraSelecionada",recuperaSnippet(marker.getSnippet()));
+                        startActivity(intent);
+
+                    }
+                });
+            }
+        }
+        return(map != null);
+
+    }
+
+    /**
+     * mostra localização atual
+     */
+    public  void mostraLocalizacaoAtual(){
+        Location currentLocation = LocationServices.FusedLocationApi
+                .getLastLocation(mGoogleApiClient);
+        if(currentLocation == null){
+            Toast.makeText(this, "Culdn't connect!",Toast.LENGTH_SHORT).show();
+        } else {
+            LatLng latLng = new LatLng(
+                    currentLocation.getLatitude(),
+                    currentLocation.getLongitude()
+            );
+            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(
+                    latLng, 15
+            );
+            map.moveCamera(update);
+
+        }
+
+    }
+
+    /**
+     * Esconde teclado
+     * @param v
+     */
+    private void hideSoftKeyboard(View v) {
+        InputMethodManager imm =
+                (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    }
+
+    /**
+     * direciona a camera para uma localizacao no Mapa
+     * @param lat
+     * @param lng
+     * @param zoom
+     */
+    private void gotoLocation(double lat, double lng, float zoom){
+        LatLng latLng = new LatLng(lat, lng);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+        map.moveCamera(update);
+    }
+
+    /**
+     * adiciona Marcador no Mapa
+     * @param add
+     * @param lat
+     * @param lng
+     */
+    private void addMarker(Address add, double lat, double lng){
+        MarkerOptions options = new MarkerOptions()
+                .title(add.getLocality())
+                .position(new LatLng(lat,lng))
+                .snippet("#"+add.getCountryName()+"# teste #")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+
+        marker = map.addMarker(options);
+    }
+
+    /**
+     * Configura Adapeter e List do spinnerBuscaProduto
+     */
+    public void configuraSpinnerBuscaProduto(){
+        produtos = new ArrayList<String>();
+        produtos.add("Morango");
+        produtos.add("Tomate");
+        produtos.add("Pera");
+        produtos.add("Outros");
+        ArrayAdapter adapter_produto = new ArrayAdapter(this, R.layout.spinner_item_produto, produtos);
+        spinnerBuscaPorProduto.setAdapter(adapter_produto);
+    }
+
 
 }
 
