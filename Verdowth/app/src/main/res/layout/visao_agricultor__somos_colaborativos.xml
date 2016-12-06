@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.AppCompatImageView
+        android:layout_width="match_parent"
+        android:src="@drawable/somoscolaborativos"
+        android:layout_height="200dp"
+        android:padding="10dp" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Somos Colaborativos"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="30sp"
+        android:textAlignment="center" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textSize="25sp"
+        android:text="Custos menores\natravés da colaboração"
+        android:padding="10dp"
+        android:textAlignment="center"
+        android:textStyle="normal|bold"
+        android:textColor="@color/colorPrimary"
+        android:gravity="center_vertical" />
+
+</LinearLayout>

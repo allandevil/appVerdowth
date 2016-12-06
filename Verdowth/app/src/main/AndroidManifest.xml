@@ -54,12 +54,14 @@
 
         </activity>
 
-        <activity android:name=".Opcoes2"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".TenhoTerra"
+        <activity android:name=".visao_agricultor.MainActivity_VisaoDoAgricultor"
+            android:screenOrientation="portrait">
+
+        </activity>
+        <activity android:name=".backup.TenhoTerra"
             android:screenOrientation="portrait"></activity>
 
-        <activity android:name=".TenhoTrabalho"
+        <activity android:name=".backup.TenhoTrabalho"
             android:screenOrientation="portrait"></activity>
 
         <activity android:name=".ComprasActivity"
