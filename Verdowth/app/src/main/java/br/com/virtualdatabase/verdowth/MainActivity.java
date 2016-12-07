@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import br.com.virtualdatabase.verdowth._percurso.Percurso_principal;
+import br.com.virtualdatabase.verdowth.visao_agricultor.MainActivity_VisaoDoAgricultor;
 
 /**
  * Created on 06/11/16.
@@ -30,7 +31,7 @@ public class MainActivity extends Activity {
 
     public void onClickPlantar(View v) {
 
-        Intent intent = new Intent(MainActivity.this, Opcoes2.class);
+        Intent intent = new Intent(MainActivity.this, MainActivity_VisaoDoAgricultor.class);
         startActivity(intent);
 
     }
