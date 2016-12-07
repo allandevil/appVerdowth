@@ -633,6 +633,10 @@ public class Percurso_principal extends AppCompatActivity
         spinnerBuscaPorProduto.setAdapter(adapter_produto);
     }
 
+    public void Susi(){
+
+    }
+
 
 }
 
