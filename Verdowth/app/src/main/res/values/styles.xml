@@ -60,4 +60,8 @@
     <style name="AppTheme.edt_text_mapa_endereco">
         <item name="android:background">@drawable/edt_txt_mapa</item>
     </style>
+
+    <style name="spinnerBuscaProduto" parent="AppTheme">
+        <item name="colorControlActivated">#ffffff</item>
+    </style>
 </resources>

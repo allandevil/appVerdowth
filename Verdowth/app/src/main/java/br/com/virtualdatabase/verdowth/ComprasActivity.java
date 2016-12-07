@@ -198,6 +198,10 @@ public class ComprasActivity extends Activity {
         }
     }
 
+    public void testeSusi(){
+
+    }
+
 }
 
 
