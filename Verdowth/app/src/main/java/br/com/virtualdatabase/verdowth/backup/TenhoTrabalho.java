@@ -1,7 +1,9 @@
-package br.com.virtualdatabase.verdowth;
+package br.com.virtualdatabase.verdowth.backup;
 
 import android.app.Activity;
 import android.os.Bundle;
+
+import br.com.virtualdatabase.verdowth.R;
 
 /**
  * Created on 06/11/16.
