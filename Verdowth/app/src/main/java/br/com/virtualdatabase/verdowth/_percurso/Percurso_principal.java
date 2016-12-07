@@ -632,6 +632,7 @@ public class Percurso_principal extends AppCompatActivity
         ArrayAdapter adapter_produto = new ArrayAdapter(this, R.layout.spinner_item_produto, produtos);
         spinnerBuscaPorProduto.setAdapter(adapter_produto);
     }
+    //**
 
 
 }
