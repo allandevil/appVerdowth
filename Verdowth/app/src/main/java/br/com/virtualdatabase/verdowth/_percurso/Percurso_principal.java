@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -392,13 +393,21 @@ public class Percurso_principal extends AppCompatActivity
                        // .url("http://www.virtualdatabase.com.br/db_info/plantas_db/plantas_db.php").build();
 
                 Response response = client.newCall(request).execute();
-                String json = response.body().string();
-                saida = json;
-                //Log.e("saida", saida);
-                // Pegando o GSON e transformando em objetos:
-                Localidade localidade1;
-                Gson gson = new Gson();
-                arrayLocalidades = gson.fromJson(json, Localidade[].class);
+
+                Boolean bresp = response.isSuccessful();
+                Log.d("TAG",bresp.toString());
+
+                if(response.isSuccessful()){
+
+                    String json = response.body().string();
+                    saida = json;
+                    //Log.e("saida", saida);
+                    // Pegando o GSON e transformando em objetos:
+                    Localidade localidade1;
+                    Gson gson = new Gson();
+                    arrayLocalidades = gson.fromJson(json, Localidade[].class);
+
+                }
 
 
             } catch (IOException e) {
@@ -406,6 +415,7 @@ public class Percurso_principal extends AppCompatActivity
             }
 
             return saida.toString();
+
         }
 
         @Override
@@ -632,7 +642,7 @@ public class Percurso_principal extends AppCompatActivity
         ArrayAdapter adapter_produto = new ArrayAdapter(this, R.layout.spinner_item_produto, produtos);
         spinnerBuscaPorProduto.setAdapter(adapter_produto);
     }
-    //**
+
 
 
 }
