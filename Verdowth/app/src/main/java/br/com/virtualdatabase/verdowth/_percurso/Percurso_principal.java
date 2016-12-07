@@ -242,6 +242,10 @@ public class Percurso_principal extends AppCompatActivity
 
     }
 
+    public void Testando(){
+        Log.e("teste", "teste");
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -392,16 +396,6 @@ public class Percurso_principal extends AppCompatActivity
                        // .url("http://www.virtualdatabase.com.br/db_info/plantas_db/plantas_db.php").build();
 
                 Response response = client.newCall(request).execute();
-<<<<<<< HEAD
-                String json = response.body().string();
-                saida = json;
-                //Log.e("saida", saida);
-                // Pegando o GSON e transformando em objetos:
-                Localidade localidade1;
-                Gson gson = new Gson();
-                arrayLocalidades = gson.fromJson(json, Localidade[].class);
-                // teste
-=======
 
                 Boolean bresp = response.isSuccessful();
                 Log.d("TAG",bresp.toString());
@@ -418,7 +412,6 @@ public class Percurso_principal extends AppCompatActivity
 
                 }
 
->>>>>>> master
 
             } catch (IOException e) {
                 e.printStackTrace();
